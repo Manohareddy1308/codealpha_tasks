@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeAlpha | Project Management</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar" id="sidebar">
+        <div class="brand">
+          <div class="brand-mark">CA</div>
+          <div>
+            <p class="brand-name">CodeAlpha</p>
+            <p class="brand-sub">Project Manager</p>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <button class="nav-btn active" data-view="dashboard">Dashboard</button>
+          <button class="nav-btn" data-view="projects">Projects</button>
+          <button class="nav-btn" data-view="tasks">My Tasks</button>
+          <button class="nav-btn" data-view="settings">Settings</button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <p>Logged in session</p>
+          <p>Projects sync with database.</p>
+        </div>
+      </aside>
+
+      <div class="main-wrap">
+        <header class="header">
+          <button class="menu-btn" id="menuBtn" aria-label="Toggle menu">☰</button>
+
+          <label class="search-box">
+            <span class="search-icon">⌕</span>
+            <input
+              type="search"
+              id="searchInput"
+              placeholder="Search projects or tasks..."
+            />
+          </label>
+
+          <div class="header-actions">
+            <button class="btn" id="addProjectBtn">Add Project</button>
+            <button class="btn btn-primary" id="addTaskBtn">Add Task</button>
+            <div class="profile">
+              <div class="avatar" id="avatar">AM</div>
+              <div>
+                <p class="profile-name" id="profileName">User</p>
+                <p class="profile-role" id="profileRole">Project Member</p>
+              </div>
+            </div>
+            <button class="btn btn-outline" id="logoutBtn" title="Sign out">Logout</button>
+          </div>
+        </header>
+
+        <main class="content">
+          <section id="dashboard-view" class="view active">
+            <div class="page-head">
+              <div>
+                <h1>Dashboard</h1>
+                <p class="muted">Overview of your projects and upcoming work.</p>
+              </div>
+            </div>
+
+            <div class="stats" id="statsGrid"></div>
+
+            <h2 class="section-title">Project Summary</h2>
+            <div class="cards" id="dashboardProjects"></div>
+
+            <h2 class="section-title">Recent Tasks</h2>
+            <div class="table-wrap" id="dashboardTasks"></div>
+          </section>
+
+          <section id="projects-view" class="view">
+            <div class="page-head">
+              <div>
+                <h1>Projects</h1>
+                <p class="muted">Track progress across every CodeAlpha project.</p>
+              </div>
+            </div>
+            <div class="cards" id="projectsGrid"></div>
+          </section>
+
+          <section id="tasks-view" class="view">
+            <div class="page-head">
+              <div>
+                <h1>My Tasks</h1>
+                <p class="muted">Due dates, priorities, and current status.</p>
+              </div>
+            </div>
+            <div class="table-wrap" id="tasksTable"></div>
+          </section>
+
+          <section id="settings-view" class="view">
+            <div class="page-head">
+              <div>
+                <h1>Settings</h1>
+                <p class="muted">Update the profile shown in the header.</p>
+              </div>
+            </div>
+            <form class="panel" id="settingsForm">
+              <label>
+                Display name
+                <input type="text" id="settingsName" required />
+              </label>
+              <label>
+                Role
+                <input type="text" id="settingsRole" required />
+              </label>
+              <button class="btn btn-primary" type="submit">Save Profile</button>
+              <p class="form-note" id="settingsNote"></p>
+            </form>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="projectModal">
+      <form class="modal" id="projectForm">
+        <h2>Add Project</h2>
+        <label>
+          Project name
+          <input type="text" id="projectName" required />
+        </label>
+        <label>
+          Description
+          <textarea id="projectDesc" rows="3" required></textarea>
+        </label>
+        <label>
+          Due date
+          <input type="date" id="projectDue" required />
+        </label>
+        <div class="modal-actions">
+          <button class="btn" type="button" data-close="projectModal">Cancel</button>
+          <button class="btn btn-primary" type="submit">Create Project</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-backdrop" id="editProjectModal">
+      <form class="modal" id="editProjectForm">
+        <h2>Edit Project</h2>
+        <input type="hidden" id="editProjectId" />
+        <label>
+          Project name
+          <input type="text" id="editProjectName" required />
+        </label>
+        <label>
+          Description
+          <textarea id="editProjectDesc" rows="3"></textarea>
+        </label>
+        <label>
+          Due date
+          <input type="date" id="editProjectDue" />
+        </label>
+        <label>
+          Status
+          <select id="editProjectStatus" required>
+            <option value="active">Active</option>
+            <option value="in-progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="on-hold">On Hold</option>
+            <option value="archived">Archived</option>
+          </select>
+        </label>
+        <div class="modal-actions">
+          <button class="btn" type="button" data-close="editProjectModal">Cancel</button>
+          <button class="btn btn-primary" type="submit">Save Changes</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-backdrop" id="taskModal">
+      <form class="modal" id="taskForm">
+        <h2>Add Task</h2>
+        <label>
+          Task title
+          <input type="text" id="taskTitle" required />
+        </label>
+        <label>
+          Project
+          <select id="taskProject" required></select>
+        </label>
+        <label>
+          Assigned to
+          <select id="taskAssignee">
+            <option value="">Unassigned</option>
+          </select>
+        </label>
+        <label>
+          Due date
+          <input type="date" id="taskDue" required />
+        </label>
+        <label>
+          Priority
+          <select id="taskPriority" required>
+            <option value="High">High</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </label>
+        <label>
+          Status
+          <select id="taskStatus" required>
+            <option value="todo" selected>To Do</option>
+            <option value="in progress">In Progress</option>
+            <option value="done">Done</option>
+          </select>
+        </label>
+        <div class="modal-actions">
+          <button class="btn" type="button" data-close="taskModal">Cancel</button>
+          <button class="btn btn-primary" type="submit">Create Task</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-backdrop" id="editTaskModal">
+      <form class="modal" id="editTaskForm">
+        <h2>Edit Task</h2>
+        <input type="hidden" id="editTaskId" />
+        <label>
+          Task title
+          <input type="text" id="editTaskTitle" required />
+        </label>
+        <label>
+          Project
+          <select id="editTaskProject" required disabled></select>
+        </label>
+        <label>
+          Assigned to
+          <select id="editTaskAssignee">
+            <option value="">Unassigned</option>
+          </select>
+        </label>
+        <label>
+          Due date
+          <input type="date" id="editTaskDue" />
+        </label>
+        <label>
+          Priority
+          <select id="editTaskPriority" required>
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </label>
+        <label>
+          Status
+          <select id="editTaskStatus" required>
+            <option value="todo">To Do</option>
+            <option value="in progress">In Progress</option>
+            <option value="done">Done</option>
+          </select>
+        </label>
+        <div class="modal-actions">
+          <button class="btn" type="button" data-close="editTaskModal">Cancel</button>
+          <button class="btn btn-primary" type="submit">Save Changes</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Phase 4A: Member Management Modal -->
+    <div class="modal-backdrop" id="membersModal">
+      <div class="modal modal-wide" id="membersModalContent">
+        <div class="modal-header-row">
+          <div>
+            <h2 id="membersModalTitle">Project Members</h2>
+            <p class="muted" id="membersModalSubtitle">Manage who has access to this project.</p>
+          </div>
+          <button class="modal-close-btn" type="button" data-close="membersModal" aria-label="Close">✕</button>
+        </div>
+
+        <form class="member-add-form" id="addMemberForm">
+          <input type="hidden" id="memberProjectId" />
+          <div class="member-add-row">
+            <label class="member-input-grow">
+              User Email
+              <input type="email" id="memberEmail" placeholder="colleague@example.com" required />
+            </label>
+            <label>
+              Role
+              <select id="memberRole">
+                <option value="member" selected>Member</option>
+                <option value="admin">Admin</option>
+                <option value="viewer">Viewer</option>
+              </select>
+            </label>
+            <button class="btn btn-primary" id="addMemberSubmitBtn" type="submit">Add Member</button>
+          </div>
+          <p class="form-note" id="memberAddFeedback"></p>
+        </form>
+
+        <div class="member-table-wrap">
+          <table class="member-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="membersTableBody">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn" type="button" data-close="membersModal">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 4B: Task Comments & Discussion Modal -->
+    <div class="modal-backdrop" id="taskCommentsModal">
+      <div class="modal modal-wide" id="taskCommentsModalContent">
+        <div class="modal-header-row">
+          <div>
+            <h2 id="taskCommentsTitle">Task Discussion</h2>
+            <div class="task-meta-badges" id="taskCommentsMeta"></div>
+          </div>
+          <button class="modal-close-btn" type="button" data-close="taskCommentsModal" aria-label="Close">✕</button>
+        </div>
+
+        <div id="taskCommentsDescWrap" style="font-size:13px; color:var(--muted); margin-bottom:10px;"></div>
+
+        <div class="comments-list-wrap" id="taskCommentsList">
+          <!-- Populated dynamically -->
+        </div>
+
+        <form class="comment-add-section" id="addTaskCommentForm">
+          <input type="hidden" id="taskCommentTaskId" />
+          <textarea
+            id="taskCommentInput"
+            placeholder="Write a comment or status update..."
+            rows="3"
+            required
+          ></textarea>
+          <div class="comment-add-actions">
+            <span class="form-note" id="taskCommentFeedback"></span>
+            <button class="btn btn-primary btn-sm" id="addCommentSubmitBtn" type="submit">Post Comment</button>
+          </div>
+        </form>
+
+        <div class="modal-actions" style="margin-top:12px;">
+          <button class="btn" type="button" data-close="taskCommentsModal">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeAlpha | Register</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="auth-page">
+    <div class="auth-container">
+      <div class="auth-brand">
+        <div class="brand-mark">CA</div>
+        <h1>Create Account</h1>
+        <p>Get started with CodeAlpha Project Manager</p>
+      </div>
+
+      <div class="auth-alert" id="authAlert"></div>
+
+      <form class="auth-form" id="registerForm">
+        <label>
+          Full name
+          <input
+            type="text"
+            id="name"
+            placeholder="e.g. Jane Doe"
+            required
+            autocomplete="name"
+          />
+        </label>
+
+        <label>
+          Email address
+          <input
+            type="email"
+            id="email"
+            placeholder="you@example.com"
+            required
+            autocomplete="email"
+          />
+        </label>
+
+        <label>
+          Password
+          <input
+            type="password"
+            id="password"
+            placeholder="At least 6 characters"
+            required
+            minlength="6"
+            autocomplete="new-password"
+          />
+        </label>
+
+        <label>
+          Confirm password
+          <input
+            type="password"
+            id="confirmPassword"
+            placeholder="Re-enter your password"
+            required
+            minlength="6"
+            autocomplete="new-password"
+          />
+        </label>
+
+        <button class="btn btn-primary auth-btn" id="submitBtn" type="submit">
+          Create Account
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        Already have an account? <a href="login.html">Sign in</a>
+      </div>
+    </div>
+
+    <script>
+      // Redirect to dashboard if already logged in
+      if (localStorage.getItem("token")) {
+        window.location.href = "index.html";
+      }
+
+      const form = document.getElementById("registerForm");
+      const alertBox = document.getElementById("authAlert");
+      const submitBtn = document.getElementById("submitBtn");
+
+      function showAlert(message, type) {
+        alertBox.textContent = message;
+        alertBox.className = "auth-alert " + type;
+      }
+
+      function clearAlert() {
+        alertBox.textContent = "";
+        alertBox.className = "auth-alert";
+      }
+
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        clearAlert();
+
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+
+        if (!name || !email || !password) {
+          showAlert("Please fill in all required fields.", "error");
+          return;
+        }
+
+        if (password.length < 6) {
+          showAlert("Password must be at least 6 characters long.", "error");
+          return;
+        }
+
+        if (password !== confirmPassword) {
+          showAlert("Passwords do not match.", "error");
+          return;
+        }
+
+        try {
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Creating Account...";
+
+          const API_BASE =
+            window.location.port && window.location.port !== "5000"
+              ? `${window.location.protocol}//${window.location.hostname || "127.0.0.1"}:5000`
+              : "";
+          const response = await fetch(API_BASE + "/api/auth/register", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name, email, password }),
+          });
+
+          const data = await response.json().catch(function () {
+            return {};
+          });
+
+          if (!response.ok) {
+            throw new Error(data.error || "Registration failed. Please try again.");
+          }
+
+          showAlert("Registration successful! Redirecting...", "success");
+
+          // Store authentication state (never store raw passwords)
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("user", JSON.stringify(data.user));
+
+          setTimeout(function () {
+            window.location.href = "index.html";
+          }, 600);
+        } catch (err) {
+          showAlert(err.message, "error");
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Create Account";
+        }
+      });
+    </script>
+  </body>
+</html>

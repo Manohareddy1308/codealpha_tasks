@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeAlpha | Login</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="auth-page">
+    <div class="auth-container">
+      <div class="auth-brand">
+        <div class="brand-mark">CA</div>
+        <h1>Welcome Back</h1>
+        <p>Sign in to access your project dashboard</p>
+      </div>
+
+      <div class="auth-alert" id="authAlert"></div>
+
+      <form class="auth-form" id="loginForm">
+        <label>
+          Email address
+          <input
+            type="email"
+            id="email"
+            placeholder="you@example.com"
+            required
+            autocomplete="email"
+          />
+        </label>
+
+        <label>
+          Password
+          <input
+            type="password"
+            id="password"
+            placeholder="Enter your password"
+            required
+            autocomplete="current-password"
+          />
+        </label>
+
+        <button class="btn btn-primary auth-btn" id="submitBtn" type="submit">
+          Sign In
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        Don't have an account? <a href="register.html">Create one</a>
+      </div>
+    </div>
+
+    <script>
+      // Redirect to dashboard if already logged in
+      if (localStorage.getItem("token")) {
+        window.location.href = "index.html";
+      }
+
+      const form = document.getElementById("loginForm");
+      const alertBox = document.getElementById("authAlert");
+      const submitBtn = document.getElementById("submitBtn");
+
+      function showAlert(message, type) {
+        alertBox.textContent = message;
+        alertBox.className = "auth-alert " + type;
+      }
+
+      function clearAlert() {
+        alertBox.textContent = "";
+        alertBox.className = "auth-alert";
+      }
+
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        clearAlert();
+
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+
+        if (!email || !password) {
+          showAlert("Please enter both email and password.", "error");
+          return;
+        }
+
+        try {
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Signing In...";
+
+          const API_BASE =
+            window.location.port && window.location.port !== "5000"
+              ? `${window.location.protocol}//${window.location.hostname || "127.0.0.1"}:5000`
+              : "";
+          const response = await fetch(API_BASE + "/api/auth/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password }),
+          });
+
+          const data = await response.json().catch(function () {
+            return {};
+          });
+
+          if (!response.ok) {
+            throw new Error(data.error || "Login failed. Please check your credentials.");
+          }
+
+          showAlert("Login successful! Redirecting...", "success");
+
+          // Store authentication state (never store raw passwords)
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("user", JSON.stringify(data.user));
+
+          setTimeout(function () {
+            window.location.href = "index.html";
+          }, 600);
+        } catch (err) {
+          showAlert(err.message, "error");
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Sign In";
+        }
+      });
+    </script>
+  </body>
+</html>

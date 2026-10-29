@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout | ShopEase</title><link rel="stylesheet" href="style/style.css"></head>
+<body><header class="navbar"><a href="index.html" class="logo">Shop<span>Ease</span></a><nav class="nav-links"><a class="nav-link" href="index.html#products">Shop</a><a class="nav-link" href="cart.html">Cart</a></nav><div class="navbar-right"><a class="btn btn-secondary" href="orders.html">My Orders</a></div></header>
+<main class="page-shell"><div id="checkoutEmptyState" class="empty-state" style="display:none"><h2>Your cart is empty</h2><p>Add some products to your cart before proceeding to checkout.</p><a class="btn btn-primary" href="index.html#products">Browse products</a></div><form id="checkoutForm" class="form-card"><h1>Checkout</h1><p class="form-intro">Review your order total and enter your delivery details. Payment is not collected in this demo.</p>
+<p id="checkoutSummary" class="summary-total">Order total: ₹0</p>
+<div class="form-field"><label for="name">Recipient name</label><input id="name" name="name" required maxlength="120" autocomplete="name"></div>
+<div class="form-field"><label for="phone">Phone number</label><input id="phone" name="phone" required maxlength="30" autocomplete="tel"></div>
+<div class="form-field"><label for="address">Delivery address</label><textarea id="address" name="address" required maxlength="500" autocomplete="street-address"></textarea></div>
+<div class="form-field"><label for="city">City</label><input id="city" name="city" required maxlength="100" autocomplete="address-level2"></div>
+<div class="form-field"><label for="postalCode">Postal code</label><input id="postalCode" name="postalCode" required maxlength="20" autocomplete="postal-code"></div>
+<div id="formNotice" class="notice" role="status"></div><button class="btn btn-primary full-width" id="placeOrderBtn" type="submit">Place Order</button><p class="form-footer"><a href="cart.html">Return to cart</a> · <a href="login.html?next=checkout">Login</a></p></form></main>
+<footer class="site-footer-simple">© 2026 ShopEase · Demo checkout; no real payment is taken.</footer><script src="js/app.js"></script></body></html>
